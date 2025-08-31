@@ -6,8 +6,18 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Database configuration
-# For local development, use SQLite; for production, use PostgreSQL from environment
 database_url = os.environ.get('DATABASE_URL')
+if not database_url:
+    # Try individual environment variables
+    db_host = os.environ.get('DB_HOST')
+    db_user = os.environ.get('DB_USER')
+    db_password = os.environ.get('DB_PASSWORD')
+    db_name = os.environ.get('DB_NAME', 'postgres')
+    db_port = os.environ.get('DB_PORT', '5432')
+    
+    if all([db_host, db_user, db_password]):
+        database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?sslmode=require"
+
 if database_url:
     # Azure PostgreSQL URL format fix (if needed)
     if database_url.startswith('postgres://'):
